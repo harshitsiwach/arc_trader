@@ -1,0 +1,10 @@
+{
+  "name": "bet-server",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@circle-fin/app-kit": "^1.15.3",
+    "viem": "^2.56.6"
+  }
+}

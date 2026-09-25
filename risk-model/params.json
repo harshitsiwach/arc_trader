@@ -1,0 +1,16 @@
+{
+  "$comment": "P0 risk params — binary up/down, operator bankroll, Arc USDC settlement. Single source of truth for server (P1) and contracts (P2).",
+  "payoutMultiplier": 1.85,
+  "entryFeePct": 0.015,
+  "maxLiabilityPctPerRound": 0.01,
+  "whaleFracOfLiability": 0.2,
+  "minBetUsdc": 1,
+  "roundDurationsSec": [300],
+  "futureDurationsSec": [60, 900],
+  "entryCutoffSec": 10,
+  "settlementTwapSec": 10,
+  "dailyStopLossPct": 0.05,
+  "hotWalletPct": 0.1,
+  "referenceWinProb": 0.5,
+  "tiersUsdc": [1000, 10000, 100000]
+}

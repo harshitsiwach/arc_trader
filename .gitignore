@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+contracts/lib/
+
+# Builds & artifacts
+app/dist/
+contracts/out/
+contracts/cache/
+contracts/broadcast/
+onchain/contracts/out/
+onchain/contracts/cache/
+
+# Env & secrets — NEVER commit
+.env
+*.key
+server/data.json
+server/daemon-state.json
+
+# Logs & OS
+*.log
+.DS_Store
+
+# Machine-local agent tooling (reinstall via npx skills / plugin marketplaces)
+.agents/
+.claude/
+skills-lock.json
+
+# Cloned third-party icon repo (334MB, nested git) — re-clone separately, then run scripts/sync-icons.mjs
+/icons/
