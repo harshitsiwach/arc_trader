@@ -18,9 +18,11 @@ import {
   type OnchainRound,
 } from '../lib/onchain'
 
-/** Onchain testnet betting: Vault deposits, Rounds bets, claims, withdrawals. */
-export function useOnchainBetting() {
+/** Onchain testnet betting: Vault deposits, Rounds bets, claims, withdrawals.
+ * Pass asAddress to read as a smart-account address instead of the wallet. */
+export function useOnchainBetting(asAddress?: string) {
   const { address, chainId } = useAccount()
+  const reader = asAddress ?? address
   const [vaultBalance, setVaultBalance] = useState<bigint | null>(null)
   const [walletUsdc, setWalletUsdc] = useState<bigint | null>(null)
   const [openRound, setOpenRound] = useState<OnchainRound | null>(null)
@@ -31,11 +33,11 @@ export function useOnchainBetting() {
   const { writeContractAsync } = useWriteContract()
 
   const refresh = useCallback(async () => {
-    if (!address) return
+    if (!reader) return
     try {
       const [vb, wu, count] = await Promise.all([
-        testnetClient.readContract({ address: VAULT_ADDR as `0x${string}`, abi: vaultAbi, functionName: 'balances', args: [address as `0x${string}`] }) as Promise<bigint>,
-        testnetClient.readContract({ address: USDC_ADDR as `0x${string}`, abi: erc20Abi, functionName: 'balanceOf', args: [address as `0x${string}`] }).catch(() => null) as Promise<bigint | null>,
+        testnetClient.readContract({ address: VAULT_ADDR as `0x${string}`, abi: vaultAbi, functionName: 'balances', args: [reader as `0x${string}`] }) as Promise<bigint>,
+        testnetClient.readContract({ address: USDC_ADDR as `0x${string}`, abi: erc20Abi, functionName: 'balanceOf', args: [reader as `0x${string}`] }).catch(() => null) as Promise<bigint | null>,
         testnetClient.readContract({ address: ROUNDS_ADDR as `0x${string}`, abi: roundsAbi, functionName: 'roundCount' }) as Promise<bigint>,
       ])
       setVaultBalance(vb)
@@ -56,7 +58,7 @@ export function useOnchainBetting() {
       for (const id of ids.slice().reverse().slice(0, 8)) {
         try {
           const b = await readBet(id)
-          if (b.user.toLowerCase() !== address.toLowerCase()) continue
+          if (b.user.toLowerCase() !== reader.toLowerCase()) continue
           const rr = await readRound(b.roundId)
           bets.push({ ...b, roundStatus: rr.status, roundResult: rr.result, roundPayout: rr.payoutBps })
         } catch {
@@ -67,7 +69,7 @@ export function useOnchainBetting() {
     } catch (e) {
       setNotice(e instanceof Error ? e.message.slice(0, 160) : 'read failed')
     }
-  }, [address])
+  }, [reader])
 
   useEffect(() => {
     refresh()
@@ -170,7 +172,7 @@ export function useOnchainBetting() {
   )
 
   return {
-    address, chainId,
+    address, chainId, readerAddress: reader,
     vaultBalance: vaultBalance == null ? null : fromBase(vaultBalance),
     walletUsdc: walletUsdc == null ? null : fromBase(walletUsdc),
     openRound, lockedRound, myBets, notice, pending,

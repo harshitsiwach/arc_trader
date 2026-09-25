@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react'
 import { useSwitchChain } from 'wagmi'
 import { arcTestnet } from 'viem/chains'
 import { useOnchainBetting } from '../hooks/useOnchainBetting'
+import { useSmartAccount } from '../hooks/useSmartAccount'
 import { fromBase } from '../lib/onchain'
 import MarketIcon from './MarketIcon'
 import BetSlip from './BetSlip'
+import SmartTradePanel from './SmartTradePanel'
 
 /** Real-money betting against the Arc Testnet Vault/Rounds contracts. */
 export default function OnchainBettingPanel() {
@@ -13,6 +15,8 @@ export default function OnchainBettingPanel() {
     openRound, lockedRound, myBets, notice, pending,
     deposit, placeBet, claim, withdraw,
   } = useOnchainBetting()
+  const smart = useSmartAccount('testnet')
+  const [payer, setPayer] = useState<'wallet' | 'smart'>('wallet')
   const { switchChain } = useSwitchChain()
   const [stake, setStake] = useState('0.10')
   const [amount, setAmount] = useState('5')
@@ -44,6 +48,22 @@ export default function OnchainBettingPanel() {
 
   return (
     <div>
+      <div style={styles.row}>
+        <button style={pay(payer === 'wallet')} onClick={() => setPayer('wallet')}>Wallet</button>
+        <button style={pay(payer === 'smart')} onClick={() => setPayer('smart')}>
+          Smart · gasless{smart.address ? '' : ' (setup)'}
+        </button>
+      </div>
+      {payer === 'smart' ? (
+        smart.status === 'ready' && smart.address ? (
+          <SmartTradePanel smartAddress={smart.address} />
+        ) : (
+          <p style={styles.muted}>
+            Set up passkey login on the <strong>Account</strong> page first — then trade here with $0 gas.
+          </p>
+        )
+      ) : (
+      <>
       <p style={styles.muted}>
         wallet: {walletUsdc == null ? '—' : `$${walletUsdc.toFixed(2)}`} · vault:{' '}
         {vaultBalance == null ? '—' : `$${vaultBalance.toFixed(2)}`}
@@ -122,9 +142,22 @@ export default function OnchainBettingPanel() {
       </div>
       {notice && <p style={styles.error}>{notice}</p>}
       {pending && <p style={styles.muted}>Confirm in wallet…</p>}
+      </>
+      )}
     </div>
   )
 }
+
+const pay = (active: boolean): React.CSSProperties => ({
+  padding: '6px 12px',
+  borderRadius: 8,
+  border: '1px solid #333',
+  background: active ? '#fff' : 'transparent',
+  color: active ? '#000' : '#ededed',
+  cursor: 'pointer',
+  fontSize: 13,
+  fontWeight: 600,
+})
 
 const styles: Record<string, React.CSSProperties> = {
   row: { display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 8, marginTop: 8 },

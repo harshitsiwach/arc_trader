@@ -5,6 +5,7 @@ import MarketList from './components/MarketList'
 import ChartPanel from './components/ChartPanel'
 import BettingPanel from './components/BettingPanel'
 import StakePanel from './components/StakePanel'
+import SmartAccountPanel from './components/SmartAccountPanel'
 // Code-split: App Kit (bridge/swap/onramp) is ~1.4MB — load on demand.
 const BridgePanel = lazy(() => import('./components/BridgePanel'))
 const SwapPanel = lazy(() => import('./components/SwapPanel'))
@@ -14,7 +15,7 @@ import { useMarkets } from './hooks/useMarkets'
 import { useHyperliquidWS } from './hooks/useHyperliquidWS'
 import { stripDex, type CandleInterval } from './lib/hyperliquid'
 
-type Page = 'trade' | 'earn' | 'bridge' | 'swap' | 'fund'
+type Page = 'trade' | 'earn' | 'bridge' | 'swap' | 'fund' | 'account'
 
 const NAV: { id: Page; label: string }[] = [
   { id: 'trade', label: 'Trade' },
@@ -22,6 +23,7 @@ const NAV: { id: Page; label: string }[] = [
   { id: 'bridge', label: 'Bridge' },
   { id: 'swap', label: 'Swap' },
   { id: 'fund', label: 'Fund' },
+  { id: 'account', label: 'Account' },
 ]
 
 const PAGE_BLURB: Record<Page, string> = {
@@ -30,6 +32,7 @@ const PAGE_BLURB: Record<Page, string> = {
   bridge: 'Move USDC across chains with Circle CCTP.',
   swap: 'Swap tokens with a reviewed quote first.',
   fund: 'Buy stablecoins with fiat, straight to your wallet.',
+  account: 'One passkey. Gasless everything.',
 }
 
 export default function App() {
@@ -130,6 +133,14 @@ export default function App() {
         )}
 
         {page === 'earn' && <StakePanel />}
+
+        {page === 'account' && (
+          <div style={styles.solo}>
+            <div style={styles.card}>
+              <SmartAccountPanel />
+            </div>
+          </div>
+        )}
 
         {(page === 'bridge' || page === 'swap' || page === 'fund') && (
           <div style={styles.solo}>

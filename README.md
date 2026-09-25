@@ -88,6 +88,21 @@ bash server/start-daemon.sh --dry-run  # rehearse read-only first
 - Day state persists in `server/daemon-state.json`.
 - Frontend: betting panel → **Arc Testnet · real USDC** → deposit → bet → claim → withdraw.
 
+## 3b. Gasless smart accounts (ERC-4337, passkey login)
+
+The **Account** page offers passkey login (Face ID / fingerprint, no seed phrase) into a
+Circle smart account (ERC-4337 MSCA). With it, the betting panel gains a
+**Wallet | Smart · gasless** toggle: deposits batch approve+deposit into **one**
+gasless user op, bets and claims are one tap each with **$0 gas** (sponsored via
+Circle Gas Station `paymaster: true`). The 672KB wallet SDK loads on demand —
+main bundle stays lean.
+
+Operator setup (all in Circle Console, testnet first):
+1. Keys → Client Keys → create key → `VITE_CLIENT_KEY` (+ fixed `VITE_CLIENT_URL` — see `app/.env.example`).
+2. Set the **Passkey Domain** to this app's domain (`localhost` works for dev; passkeys are domain-bound, so set the real domain before deploying).
+3. Gas Station → paymaster policy covering the sponsored ops.
+4. Trial credential storage is `localStorage`; production must use httpOnly cookies (flagged in code).
+
 ## 4. Contracts (Arc Testnet, verified)
 
 | Contract | Address |
